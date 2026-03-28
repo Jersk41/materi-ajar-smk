@@ -1,8 +1,8 @@
-// @ts-check
 import { themes as prismThemes } from 'prism-react-renderer';
+import type { Config } from '@docusaurus/types';
+import type * as Preset from '@docusaurus/preset-classic';
 
-/** @type {import('@docusaurus/types').Config} */
-const config = {
+const config: Config = {
   title: 'Materi Ajar',
   tagline: '',
   favicon: 'img/favicon.ico',
@@ -21,26 +21,26 @@ const config = {
   presets: [
     [
       'classic',
-      ({
+      {
         docs: {
-          sidebarPath: './sidebars.js',
+          sidebarPath: './sidebars.ts',
           routeBasePath: '/',
         },
         blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
-      }),
+      } satisfies Preset.Options,
     ],
   ],
 
-  themeConfig: ({
+  themeConfig: {
     navbar: {
       title: 'Materi Ajar',
       items: [],
     },
     footer: {
-      style: 'light',
+      style: 'dark',
       copyright: `© ${new Date().getFullYear()}`,
     },
     prism: {
@@ -48,7 +48,7 @@ const config = {
       darkTheme: prismThemes.dracula,
       additionalLanguages: ['php', 'kotlin', 'bash', 'sql'],
     },
-  }),
+  } satisfies Preset.ThemeConfig,
 };
 
 export default config;
