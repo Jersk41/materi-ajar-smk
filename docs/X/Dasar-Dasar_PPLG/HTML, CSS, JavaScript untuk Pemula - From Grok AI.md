@@ -209,7 +209,7 @@ END IF
 ## Saran Media Pembelajaran untuk NotebookLM
 Untuk pengembangan lebih lanjut di NotebookLM (upload dokumen ini untuk generate):
 1. **Audio Overview:** Ringkasan 5 menit per modul, dengan suara narator Indonesia.
-2. **Quiz Interaktif:** 10 soal MCQ per bagian (e.g., "Apa fungsi `<head>` di HTML?"), dengan jawaban otomatis.
+2. **Quiz Interaktif:** 10 soal MCQ per bagian (e.g., "Apa fungsi <head> di HTML?"), dengan jawaban otomatis.
 3. **Timeline Visual:** Roadmap sebagai garis waktu interaktif, dari HTML ke proyek.
 4. **Infografis:** Diagram flowchart algoritma dan box model CSS.
 5. **Video Ringkasan:** Generate script untuk video 2-3 menit, integrasikan dengan YouTube playlist seperti https://www.youtube.com/playlist?list=PL1Z-C0_J_9daLDNnmfAR94txv-Esvb88m (tutorial HTML/CSS/JS pemula) atau https://www.youtube.com/watch?v=QyY5cfz2390 (pseudocode).
