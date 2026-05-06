@@ -4,7 +4,6 @@ tags:
   - pplg
   - kelas-x
   - modul-ajar
-  - patch-version
   - semester-2
 creation-date: 2026-04-06
 publish: false

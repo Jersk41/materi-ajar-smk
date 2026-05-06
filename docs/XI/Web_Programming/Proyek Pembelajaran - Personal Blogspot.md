@@ -1,223 +1,126 @@
 ---
 publish: false
 ---
+# 📝 Projek Personal Blog: PHP Native & Relational DB
 
-**Materi:** Pendalaman Desain Database Relasional dengan MySQL  
-**Tema:** Web Blog Solo-Blogger  
+Projek ini adalah penerapan nyata dari materi **Desain Database Relasional**. Kita akan membangun sebuah "Solo Blog" (Blog Pribadi) di mana kamu adalah satu-satunya penulis yang mengelola artikel melalui sistem yang teratur.
 
-Desain: [[Sketsa Kasar Projek Personal Blogspot.excalidraw]]
-
----
-
-## 1. Pendahuluan  
-Materi ini merupakan lanjutan topik _Desain Database Relasional_ yang mencakup:  
-- Jenis-jenis relasi (1-1, 1-M, M-N)  
-- Integritas data & aksi referensial (ON DELETE, ON UPDATE)  
-- Query `JOIN`  
-- Entity Relationship Diagram (ERD)  
-
-Pembelajaran diarahkan agar siswa tidak hanya memahami teori, tetapi juga menerapkannya langsung melalui proyek web blog nyata.
+:::info[Tujuan Utama]
+Bukan cuma bikin web yang "asal jalan", tapi web yang **aman** dan punya **struktur database yang benar** menggunakan relasi 1-M (One-to-Many/Satu-ke-Banyak).
+:::
 
 ---
 
-## 2. Tema & Tujuan Proyek  
-**Tema Proyek:** Personal Blog (Web Blogspot)  
-**Tujuan Pembelajaran:**  
-1. Siswa mampu membangun website yang menarik dan responsif.  
-2. Siswa memahami penerapan konsep-konsep database relasional:  
-   - Relasi antar tabel  
-   - Integritas data  
-   - Aksi referensial  
-   - Query `JOIN`  
-   - ERD  
-3. Siswa terbiasa dengan pengembangan berbasis proyek (PHP + MySQL).
+## 🗃️ Struktur Database (Versi Ringan)
+Kita akan menggunakan dua tabel utama untuk memahami cara menghubungkan data:
+1.  **categories**: Tempat menyimpan kategori (Teknologi, Lifestyle, dsb).
+2.  **posts**: Tempat menyimpan artikel yang terhubung ke salah satu kategori.
 
----
-
-## 3. Teknologi yang Digunakan  
-- Backend: PHP (v8.1+) tanpa framework  
-- Database: MySQL (v8.0+)  
-- Frontend: HTML, CSS, JavaScript  
-- UI Library (opsional): Bootstrap 5 (direkomendasikan)  
-- Version Control (opsional): Git  
-
----
-
-## 4. Aktor & Peran
-- **User (Penulis):** menulis, mengedit, menghapus artikel; memberi komentar.  
-- **Guest (Tamu):** membaca artikel; harus register/login untuk memberi komentar.  
-- **Admin (opsional):** pengajar/pengelola sistem; memiliki hak penuh.  
-
-> Catatan: Untuk fase awal (kelas XI) sistem menggunakan **solo blogger** (satu penulis utama).
-
----
-
-## 5. Fitur Utama Aplikasi  
-### a. Fitur Umum  
-- Registrasi & login  
-- Logout  
-- Melihat daftar artikel (feed)  
-### b. Fitur Penulis (User)  
-- Dashboard pribadi
-- CRUD artikel (Create, Read, Update, Delete)  
-- Melihat komentar pada artikelnya  
-- Memberi komentar ke artikel lain  
-### c. Fitur Guest  (Tamu)
-- Melihat artikel tanpa login  
-- Login/register untuk memberi komentar  
-
-> **Catatan tahap lanjutan (opsional):** fitur “like” untuk artikel, dan mode komunitas (feed terpusat).
-
----
-
-## 6. Struktur Database (Fase 1: Solo Blogger)  
-Tabel utama: `users`, `articles`, `comments`  
-Relasi:  
-- users (1) → (M) articles  
-- articles (1) → (M) comments  
-- users (1) → (M) comments  
-
-### 6.1 Skema MySQL  
 ```sql
-CREATE TABLE users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- 1. Tabel Kategori
+CREATE TABLE categories (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE articles (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(200) NOT NULL,
-  slug VARCHAR(200) NOT NULL UNIQUE,
-  content TEXT NOT NULL,
-  published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  author_id INT NOT NULL,
-  FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+-- 2. Tabel Posts (Relasi ke Categories)
+CREATE TABLE posts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    category_id INT,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
-
-CREATE TABLE comments (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  article_id INT NOT NULL,
-  user_id INT NOT NULL,
-  comment_text TEXT NOT NULL,
-  commented_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-````
-
-### 6.2 ERD
-
-```mermaid
-erDiagram
-    users ||--o{ articles : writes
-    articles ||--o{ comments : has
-    users ||--o{ comments : gives
-
-    users {
-      int id PK
-      string username
-      string email
-      string password
-      timestamp created_at
-    }
-    articles {
-      int id PK
-      string title
-      string slug
-      text content
-      datetime published_at
-      int author_id FK
-    }
-    comments {
-      int id PK
-      int article_id FK
-      int user_id FK
-      text comment_text
-      datetime commented_at
-    }
 ```
 
 ---
 
-## 7. Struktur Proyek
+## 📁 Struktur Folder (Susunan File)
+Agar kamu tidak bingung, setiap file dipisah berdasarkan fungsinya (Modul).
 
+```text
+blogspot/
+├── config/
+│   └── database.php      # Pusat koneksi ke database
+├── layout/               # Kerangka tampilan (Potongan kode yang dipakai berulang)
+│   ├── header.php        # Bagian atas & Navigasi (Bootstrap 5)
+│   └── footer.php        # Bagian bawah & Script penutup
+├── posts/                # MODUL ARTIKEL (Segala urusan tulisan)
+│   ├── index.php         # Daftar artikel di Dashboard (Tabel)
+│   ├── create.php        # Form buat tulisan baru
+│   ├── store.php         # Proses simpan data ke database
+│   ├── edit.php          # Form ubah tulisan
+│   ├── update.php        # Proses simpan perubahan
+│   └── delete.php        # Proses hapus artikel
+├── categories/           # MODUL KATEGORI (Pengelompokan tulisan)
+│   ├── index.php         # Daftar & Tambah kategori
+│   └── delete.php        
+├── index.php             # Halaman Depan (Tampilan untuk pembaca)
+└── post.php              # Detail Artikel (Halaman baca selengkapnya)
 ```
-/blogspot/
-│
-├── admin/             ← panel pengelolaan postingan (admin/penulis)
-│   ├── index.php
-│   ├── new.php
-│   ├── edit.php
-│   ├── delete.php
-│
-├── includes/          ← file umum (konfigurasi, fungsi, template)
-│   ├── config.php
-│
-├── public/            ← aset front-end
-│   ├── css/
-│   ├── js/
-│   └── images/
-│
-├── index.php           ← halaman utama / feed artikel
-├── post.php            ← detail artikel (/posts/{username}/{slug})
-├── login.php           ← halaman login
-├── logout.php           ← halaman (route) untuk logout
+
+---
+
+## 🛡️ SOP Keamanan & AI (Aturan Main Baku)
+
+**SOP** (*Standard Operating Procedure*) adalah **Aturan Main Baku**. Ikuti aturan ini agar kodemu standar industri dan aman.
+
+### 1. No Prepared Statement = No Score
+Jangan pernah menulis query "mentah" seperti ini: `SELECT * FROM posts WHERE id = $id`.
+**Wajib menggunakan Prepared Statements (Pernyataan Siap-Pakai):**
+* **Kenapa?** Agar webmu aman dari *SQL Injection* (serangan hacker lewat form).
+```php
+$stmt = $conn->prepare("SELECT * FROM posts WHERE id = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
 ```
 
----
-
-## 8. Routing & Navigasi Dasar
-
-| Route                        | Deskripsi                                              |
-| ---------------------------- | ------------------------------------------------------ |
-| `/`                          | Beranda / feed utama (menampilkan semua artikel)       |
-| `/posts?s={slug}&a={author}` | Halaman detail artikel berdasarkan `username` & `slug` |
-| `/login`                     | Halaman autentikasi (login / masuk)                    |
-| `/register`                  | Halaman autentikasi (registrasi  / daftar)             |
-| `/admin/index.php`           | Halaman Dashboard penulis (untuk mengelola postingan)  |
-| `/admin/new`                 | Form tambah artikel baru (hanya untuk penulis)         |
-| `/admin/edit?id={id}`        | Edit artikel (by ID)                                   |
-| `/admin/delete?id={id}`      | Hapus artikel (by ID)                                  |
+### 2. Gunakan AI Secara Bertanggung Jawab
+Boleh tanya ChatGPT/Gemini, tapi kamu adalah **Bos**, AI adalah **Asisten**. Kamu harus paham apa yang diketik Asistenmu. Jika mentok, gunakan perintah ini:
+> *"Saya sedang belajar PHP Native. Tolong jelaskan maksud kode ini baris demi baris dalam bahasa Indonesia agar saya paham alurnya."*
 
 ---
 
-## 9. Langkah-Langkah Pengembangan
+## 🎨 Panduan Tampilan & Bootstrap 101
 
-1. Desain **ERD** & buat database di MySQL
-2. Desain antarmuka (UI/UX) menggunakan HTML & CSS / Bootstrap
-3. Setup lingkungan pengembangan (local server, PHP, MySQL, Git)
-4. Hubungkan website dengan database
-5. Buat halaman login & register
-6. Buat halaman utama (feed artikel)
-7. Buat dashboard user & CRUD artikel
-8. Tambahkan fitur komentar
-9. Uji konsep integritas data & query `JOIN`
-10. (Opsional) Implementasikan fitur “like” atau “tag” untuk relasi many-to-many
+Bingung cara pakai Bootstrap? Anggap Bootstrap itu adalah **Kumpulan Stiker Baju**. Kamu punya HTML (tubuh polos), lalu kamu tempelkan "stiker" (Class) supaya terlihat keren.
 
----
+### Istilah yang Wajib Tahu
+* **`.container`**: Kotak pembungkus agar konten tidak mepet ke pinggir layar.
+* **`.btn .btn-primary`**: `.btn` itu bentuk tombol, `.btn-primary` itu warna birunya.
+* **`.card`**: Kotak putih cantik untuk membungkus tulisan (seperti kartu nama).
 
-## 10. Catatan untuk Guru / Pengajar
+### Gambaran Kasar Halaman
 
-- Fase 2 dan Fase 3 (fitur “like” dan mode komunitas) bersifat **opsional lanjutan** dan dapat digunakan untuk memperdalam konsep basis data.
-- Untuk kelas XI, cukup fokus hingga fase solo blogger dengan komentar agar siswa memahami dasar relasi dan integritas data.
-- Disarankan guru menyediakan **template proyek dasar** (struktur folder + file kosong) agar siswa bisa fokus pada database dan logika CRUD tanpa terbebani setup awal.
+
+1.  **Halaman Utama (`index.php`)**: Isinya deretan `.card`. Tiap kartu berisi Judul, Nama Kategori (pake Badge), dan tombol "Baca Selengkapnya".
+2.  **Dashboard Penulis (`posts/index.php`)**: Isinya harus berupa **Tabel**. Ada kolom No, Judul, Kategori, dan tombol Aksi (Edit/Hapus).
+3.  **Form Input (`posts/create.php`)**: Gunakan class `.form-control` pada input agar kotak ketiknya terlihat modern dan rapi.
 
 ---
 
-## Lampiran/Referensi
-Visualisasi ERD (Mermaid) telah disertakan di bagian [[#6.2 ERD (Mermaid)]]
-Materi tambahan:
-- Relasi many-to-many (tags, likes)
-- Integritas referensial (ON DELETE, ON UPDATE)
-- Praktik `JOIN` (inner, left, right)
-- Teknik pengamanan slug dan URL SEO friendly
+## 🛠️ Tips Troubleshooting (Pemecahan Masalah)
+
+**Troubleshooting** adalah proses **mencari kesalahan** dan memperbaikinya. Jika webmu error, lakukan hal ini:
+
+* **Cek Koneksi:** Pastikan MySQL di XAMPP/Laragon sudah menyala (indikator hijau).
+* **Variable Undefined:** Cek apakah kamu sudah memanggil file koneksi dengan `include '../config/database.php'` di baris paling atas.
+* **Intip Data:** Gunakan `var_dump($_POST);` untuk melihat apakah data dari form beneran terkirim atau tidak.
+* **Query Error:** Tambahkan `die($conn->error)` jika query tidak jalan untuk melihat pesan error dari database.
 
 ---
 
-## Akhir Kata
+## 🗓️ Timeline Pengembangan (Urutan Kerja)
 
-Semoga proyek ini memberi pengalaman belajar yang menyenangkan sekaligus bermakna bagi siswa dalam memahami konsep database relasional dan pengembangan web full stack sederhana.
+* **Minggu 1:** Buat Database & Tabel. Selesaikan modul **Categories** agar kategori siap dipilih.
+* **Minggu 2:** Buat form artikel (`create.php`) dan proses simpan data (`store.php`).
+* **Minggu 3:** Selesaikan fitur **Edit** dan **Delete** artikel. Pastikan relasi tabel bekerja.
+* **Minggu 4:** Buat tampilan depan (`index.php`) menggunakan Query `JOIN` untuk menampilkan nama kategori di setiap artikel.
 
-> “Belajar dengan praktik nyata membuat konsep jadi lebih mudah dipahami, dan proyek ini adalah jembatan antara teori dan aplikasi.”
+---
+
+:::warning[Misi Eksperimen]
+Setelah aplikasimu jalan, coba hapus salah satu kategori yang sudah punya artikel. Lalu cek tabel `posts`, apa yang terjadi pada kolom `category_id` artikel tersebut? Perhatikan bagaimana database menjaga data agar tetap konsisten!
+:::

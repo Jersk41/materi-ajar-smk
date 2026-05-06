@@ -8,7 +8,6 @@ tags:
 creation-date: 2026-04-06
 publish: false
 ---
-
 # Overview Materi Dasar-Dasar PPLG (Patch Version)
 
 > [!INFO] **Disclaimer & Prinsip "Patch Version"**
