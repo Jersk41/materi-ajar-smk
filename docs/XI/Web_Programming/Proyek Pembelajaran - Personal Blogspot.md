@@ -1,5 +1,5 @@
 ---
-publish: false
+publish: true
 ---
 # 📝 Projek Personal Blog: PHP Native & Relational DB
 
